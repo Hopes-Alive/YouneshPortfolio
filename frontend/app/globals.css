@@ -1,0 +1,124 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&family=Playfair+Display:wght@400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap');
+
+:root {
+  --bg-primary: #f8f7ff;
+  --bg-secondary: #efeeff;
+  --text-primary: #1a1a2e;
+  --text-secondary: #6b6b8d;
+  --accent: #6c63ff;
+  --accent-hover: #5a52d5;
+  --nav-bg: rgba(248, 247, 255, 0.85);
+  --nav-text: #1a1a2e;
+  --font-heading: 'Space Grotesk', sans-serif;
+  --font-body: 'Inter', sans-serif;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: var(--font-body);
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  transition: background-color 0.5s ease, color 0.5s ease;
+  overflow-x: hidden;
+}
+
+::selection {
+  background-color: var(--accent);
+  color: var(--bg-primary);
+}
+
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--bg-primary);
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(128, 128, 128, 0.3);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--accent);
+}
+
+/* Blueprint grid background for engineering page */
+[data-theme="engineering"] .blueprint-grid {
+  background-image:
+    linear-gradient(rgba(79, 195, 247, 0.06) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(79, 195, 247, 0.06) 1px, transparent 1px);
+  background-size: 40px 40px;
+}
+
+/* Terminal scanline effect for AI page */
+[data-theme="ai"] .scanline::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 2px,
+    rgba(0, 255, 136, 0.015) 2px,
+    rgba(0, 255, 136, 0.015) 4px
+  );
+  pointer-events: none;
+}
+
+/* Star field for vision page */
+@keyframes twinkle {
+  0%, 100% { opacity: 0.2; }
+  50% { opacity: 1; }
+}
+
+.star {
+  position: absolute;
+  width: 2px;
+  height: 2px;
+  background: white;
+  border-radius: 50%;
+  animation: twinkle var(--duration, 3s) ease-in-out infinite;
+  animation-delay: var(--delay, 0s);
+}
+
+/* Dance gradient background */
+[data-theme="dance"] .dance-gradient {
+  background: linear-gradient(135deg, #1a0a2e 0%, #2d1b4e 30%, #1a0a2e 60%, #3d1b5e 100%);
+}
+
+/* Data viz grid for datascience page */
+[data-theme="datascience"] .data-grid {
+  background-image:
+    linear-gradient(rgba(255, 107, 53, 0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 107, 53, 0.04) 1px, transparent 1px);
+  background-size: 30px 30px;
+}
+
+/* Liquid glass / water caustic animation for dark themes */
+@keyframes waterShimmer {
+  0%, 100% { background-position: -100% 0%; }
+  50% { background-position: 200% 0%; }
+}
+
+@layer utilities {
+  .text-gradient {
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+}
