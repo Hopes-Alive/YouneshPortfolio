@@ -1,79 +1,34 @@
 "use client";
 
 import { motion } from "framer-motion";
-import {
-  Camera,
-  BookOpen,
-  Mountain,
-  Utensils,
-  Gamepad2,
-  Plane,
-  Music,
-  Paintbrush,
-} from "lucide-react";
+import { Camera, BookOpen, Mountain, Utensils, Gamepad2, Plane, Music, Paintbrush } from "lucide-react";
 import PageTransition from "@/components/layout/PageTransition";
 import SectionHeading from "@/components/shared/SectionHeading";
 
 const hobbies = [
-  {
-    icon: Camera,
-    title: "Photography",
-    description: "Capturing moments and perspectives through the lens — street, architecture, and nature.",
-    color: "#6c5ce7",
-  },
-  {
-    icon: BookOpen,
-    title: "Reading",
-    description: "From science fiction to philosophy — books shape how I think about the world.",
-    color: "#00b894",
-  },
-  {
-    icon: Mountain,
-    title: "Hiking & Nature",
-    description: "Finding clarity in the mountains — where the best ideas happen.",
-    color: "#fdcb6e",
-  },
-  {
-    icon: Utensils,
-    title: "Cooking",
-    description: "Experimenting with flavors and cuisines — another form of creative expression.",
-    color: "#e17055",
-  },
-  {
-    icon: Gamepad2,
-    title: "Gaming",
-    description: "Strategy games and immersive worlds — entertainment meets problem-solving.",
-    color: "#0984e3",
-  },
-  {
-    icon: Plane,
-    title: "Travel",
-    description: "Experiencing cultures, architectures, and perspectives from around the globe.",
-    color: "#00cec9",
-  },
-  {
-    icon: Music,
-    title: "Music",
-    description: "Listening, discovering, and sometimes creating — rhythm is everywhere.",
-    color: "#fd79a8",
-  },
-  {
-    icon: Paintbrush,
-    title: "Sketching",
-    description: "Quick sketches and doodles — keeping the creative muscle active daily.",
-    color: "#a29bfe",
-  },
+  { icon: Camera,     title: "Photography",     description: "Capturing moments and perspectives through the lens — street, architecture, and nature.", color: "#7c6ee8" },
+  { icon: BookOpen,   title: "Reading",          description: "From science fiction to philosophy — books shape how I think about the world.",          color: "#00c99a" },
+  { icon: Mountain,   title: "Hiking & Nature",  description: "Finding clarity in the mountains — where the best ideas happen.",                        color: "#f5c842" },
+  { icon: Utensils,   title: "Cooking",          description: "Experimenting with flavors and cuisines — another form of creative expression.",           color: "#e17055" },
+  { icon: Gamepad2,   title: "Gaming",           description: "Strategy games and immersive worlds — entertainment meets problem-solving.",               color: "#3c9ef5" },
+  { icon: Plane,      title: "Travel",           description: "Experiencing cultures, architectures, and perspectives from around the globe.",            color: "#00cec9" },
+  { icon: Music,      title: "Music",            description: "Listening, discovering, and sometimes creating — rhythm is everywhere.",                   color: "#fd79a8" },
+  { icon: Paintbrush, title: "Sketching",        description: "Quick sketches and doodles — keeping the creative muscle active daily.",                   color: "#9c8ef8" },
 ];
 
 export default function HobbiesPage() {
   return (
     <PageTransition themeId="hobbies">
-      <div className="pt-32 pb-24 px-6">
-        <div className="max-w-6xl mx-auto">
+      <div className="page-wrapper overflow-hidden relative">
+        {/* Purple glow */}
+        <div className="absolute -top-32 left-1/2 -translate-x-1/2 w-[600px] h-[400px] rounded-full pointer-events-none"
+          style={{ background: "radial-gradient(ellipse, rgba(124,110,232,0.1) 0%, transparent 70%)", filter: "blur(80px)" }} />
+
+        <div className="relative max-w-6xl mx-auto">
           {/* Header */}
           <div className="text-center mb-20">
             <motion.h1
-              className="text-5xl md:text-7xl font-heading font-bold mb-6"
+              className="text-5xl md:text-7xl font-heading font-bold mb-6 leading-tight"
               style={{ color: "var(--text-primary)" }}
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
@@ -81,7 +36,7 @@ export default function HobbiesPage() {
             >
               Hobbies
               <br />
-              <span style={{ color: "var(--accent)" }}>& Beyond</span>
+              <span style={{ color: "var(--accent)" }}>&amp; Beyond</span>
             </motion.h1>
             <motion.p
               className="text-lg max-w-2xl mx-auto"
@@ -95,48 +50,44 @@ export default function HobbiesPage() {
             </motion.p>
           </div>
 
-          {/* Hobby Grid */}
           <SectionHeading title="What I Love" subtitle="The interests that keep life interesting" />
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
             {hobbies.map((hobby, i) => (
               <motion.div
                 key={hobby.title}
                 className="group relative p-6 rounded-2xl border cursor-default overflow-hidden"
                 style={{
-                  backgroundColor: "var(--bg-secondary)",
-                  borderColor: "rgba(128,128,128,0.1)",
+                  background: "rgba(10,10,30,0.5)",
+                  borderColor: "rgba(255,255,255,0.05)",
                 }}
-                initial={{ opacity: 0, y: 30, rotate: -2 }}
+                initial={{ opacity: 0, y: 30, rotate: -1 }}
                 whileInView={{ opacity: 1, y: 0, rotate: 0 }}
                 viewport={{ once: true }}
-                transition={{ delay: i * 0.06, type: "spring", stiffness: 200 }}
+                transition={{ delay: i * 0.06, type: "spring", stiffness: 180 }}
                 whileHover={{
-                  y: -8,
+                  y: -7,
                   rotate: 1,
-                  borderColor: hobby.color,
-                  transition: { duration: 0.25 },
+                  borderColor: `${hobby.color}60`,
+                  background: `${hobby.color}08`,
+                  transition: { duration: 0.22 },
                 }}
               >
                 <div
                   className="w-12 h-12 rounded-xl flex items-center justify-center mb-4 transition-transform group-hover:scale-110 group-hover:rotate-6"
-                  style={{ backgroundColor: `${hobby.color}15`, color: hobby.color }}
+                  style={{ background: `${hobby.color}14`, color: hobby.color, border: `1px solid ${hobby.color}25` }}
                 >
-                  <hobby.icon size={24} />
+                  <hobby.icon size={22} />
                 </div>
-                <h3
-                  className="text-lg font-heading font-bold mb-2"
-                  style={{ color: "var(--text-primary)" }}
-                >
+                <h3 className="text-base font-heading font-bold mb-2" style={{ color: "var(--text-primary)" }}>
                   {hobby.title}
                 </h3>
-                <p className="text-sm leading-relaxed" style={{ color: "var(--text-secondary)" }}>
+                <p className="text-xs leading-relaxed" style={{ color: "var(--text-secondary)" }}>
                   {hobby.description}
                 </p>
-
-                {/* Playful background circle */}
                 <div
-                  className="absolute -bottom-6 -right-6 w-24 h-24 rounded-full opacity-0 group-hover:opacity-10 transition-opacity duration-300"
-                  style={{ backgroundColor: hobby.color }}
+                  className="absolute -bottom-6 -right-6 w-24 h-24 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-500"
+                  style={{ background: `radial-gradient(circle, ${hobby.color}18 0%, transparent 70%)`, filter: "blur(20px)" }}
                 />
               </motion.div>
             ))}

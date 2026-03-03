@@ -27,12 +27,28 @@ const values = [
 export default function AboutPage() {
   return (
     <PageTransition themeId="about">
-      <div className="pt-32 pb-24 px-6">
-        <div className="max-w-5xl mx-auto">
+      <div className="page-wrapper overflow-hidden relative">
+        {/* Warm glow orbs */}
+        <div
+          className="absolute -top-40 right-0 w-[500px] h-[500px] rounded-full pointer-events-none"
+          style={{
+            background: "radial-gradient(circle, rgba(232,144,106,0.08) 0%, transparent 70%)",
+            filter: "blur(60px)",
+          }}
+        />
+        <div
+          className="absolute bottom-0 left-0 w-[400px] h-[400px] rounded-full pointer-events-none"
+          style={{
+            background: "radial-gradient(circle, rgba(232,144,106,0.05) 0%, transparent 70%)",
+            filter: "blur(50px)",
+          }}
+        />
+
+        <div className="relative max-w-5xl mx-auto">
           {/* Hero */}
           <div className="text-center mb-24">
             <motion.p
-              className="text-sm uppercase tracking-[0.3em] font-medium mb-4"
+              className="text-sm uppercase tracking-[0.3em] font-medium mb-5"
               style={{ color: "var(--accent)" }}
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
@@ -41,7 +57,7 @@ export default function AboutPage() {
               The Story So Far
             </motion.p>
             <motion.h1
-              className="text-5xl md:text-7xl font-heading font-bold mb-6"
+              className="text-5xl md:text-7xl font-heading font-bold mb-6 leading-tight"
               style={{ color: "var(--text-primary)" }}
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
@@ -65,24 +81,27 @@ export default function AboutPage() {
           {/* Values */}
           <section className="mb-32">
             <SectionHeading title="What Drives Me" subtitle="Core values that connect every chapter" />
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               {values.map((value, i) => (
                 <motion.div
                   key={value.title}
-                  className="p-8 rounded-2xl border"
+                  className="p-8 rounded-2xl border relative overflow-hidden group"
                   style={{
-                    backgroundColor: "var(--bg-secondary)",
-                    borderColor: "rgba(128,128,128,0.1)",
+                    background: "rgba(232,144,106,0.03)",
+                    borderColor: "rgba(232,144,106,0.12)",
                   }}
                   initial={{ opacity: 0, y: 20 }}
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}
                   transition={{ delay: i * 0.1 }}
+                  whileHover={{ borderColor: "rgba(232,144,106,0.35)", background: "rgba(232,144,106,0.06)" }}
                 >
-                  <h3
-                    className="text-xl font-heading font-bold mb-3"
-                    style={{ color: "var(--accent)" }}
-                  >
+                  {/* Glow */}
+                  <div
+                    className="absolute -top-8 -right-8 w-24 h-24 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+                    style={{ background: "radial-gradient(circle, rgba(232,144,106,0.15) 0%, transparent 70%)", filter: "blur(20px)" }}
+                  />
+                  <h3 className="text-xl font-heading font-bold mb-3" style={{ color: "var(--accent)" }}>
                     {value.title}
                   </h3>
                   <p className="text-sm leading-relaxed" style={{ color: "var(--text-secondary)" }}>
@@ -95,10 +114,7 @@ export default function AboutPage() {
 
           {/* Timeline */}
           <section>
-            <SectionHeading
-              title="My Journey"
-              subtitle="A timeline of reinvention and growth"
-            />
+            <SectionHeading title="My Journey" subtitle="A timeline of reinvention and growth" />
             <Timeline events={timelineEvents} />
           </section>
         </div>

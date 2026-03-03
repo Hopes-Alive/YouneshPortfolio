@@ -11,5 +11,8 @@
     "dev": "npm run dev --workspace=frontend",
     "build": "npm run build --workspace=frontend",
     "start": "npm run start --workspace=frontend"
+  },
+  "devDependencies": {
+    "@types/three": "^0.169.0"
   }
 }

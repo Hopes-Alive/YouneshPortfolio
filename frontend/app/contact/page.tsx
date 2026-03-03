@@ -2,48 +2,57 @@
 
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { Send, Github, Linkedin, Mail, MapPin, Phone } from "lucide-react";
+import { Send, Github, Linkedin, Mail, MapPin, Zap } from "lucide-react";
 import PageTransition from "@/components/layout/PageTransition";
 import { siteConfig } from "@/data/site";
 
 export default function ContactPage() {
-  const [formData, setFormData] = useState({
-    name: "",
-    email: "",
-    subject: "",
-    message: "",
-  });
+  const [formData, setFormData] = useState({ name: "", email: "", subject: "", message: "" });
   const [submitted, setSubmitted] = useState(false);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setSubmitted(true);
-    setTimeout(() => setSubmitted(false), 3000);
+    setTimeout(() => setSubmitted(false), 3500);
   };
 
-  const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
-  ) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
   const contactInfo = [
-    { icon: Mail, label: "Email", value: siteConfig.socials.email, href: `mailto:${siteConfig.socials.email}` },
-    { icon: MapPin, label: "Location", value: "Available Worldwide", href: null },
-    { icon: Phone, label: "Availability", value: "Open to opportunities", href: null },
+    { icon: Mail,   label: "Email",        value: siteConfig.socials.email,  href: `mailto:${siteConfig.socials.email}` },
+    { icon: MapPin, label: "Location",     value: "Available Worldwide",     href: null },
+    { icon: Zap,    label: "Availability", value: "Open to opportunities",   href: null },
   ];
 
-  const inputClasses =
-    "w-full px-4 py-3 rounded-xl text-sm outline-none transition-all duration-200 border focus:ring-2";
+  const inputBase: React.CSSProperties = {
+    width: "100%",
+    padding: "0.75rem 1rem",
+    borderRadius: "0.75rem",
+    fontSize: "0.875rem",
+    outline: "none",
+    transition: "border-color 0.2s, box-shadow 0.2s",
+    background: "rgba(255,255,255,0.03)",
+    border: "1px solid rgba(91,140,255,0.15)",
+    color: "var(--text-primary)",
+    fontFamily: "var(--font-body)",
+  };
 
   return (
     <PageTransition themeId="contact">
-      <div className="pt-32 pb-24 px-6">
-        <div className="max-w-5xl mx-auto">
+      <div className="page-wrapper overflow-hidden relative">
+        {/* Glow */}
+        <div className="absolute -top-32 right-0 w-[500px] h-[500px] rounded-full pointer-events-none"
+          style={{ background: "radial-gradient(circle, rgba(91,140,255,0.08) 0%, transparent 70%)", filter: "blur(80px)" }} />
+        <div className="absolute bottom-0 left-0 w-[400px] h-[400px] rounded-full pointer-events-none"
+          style={{ background: "radial-gradient(circle, rgba(91,140,255,0.05) 0%, transparent 70%)", filter: "blur(60px)" }} />
+
+        <div className="relative max-w-5xl mx-auto">
           {/* Header */}
           <div className="text-center mb-20">
             <motion.h1
-              className="text-5xl md:text-7xl font-heading font-bold mb-6"
+              className="text-5xl md:text-7xl font-heading font-bold mb-6 leading-tight"
               style={{ color: "var(--text-primary)" }}
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
@@ -65,7 +74,7 @@ export default function ContactPage() {
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-5 gap-12">
-            {/* Contact Form */}
+            {/* Form */}
             <motion.div
               className="lg:col-span-3"
               initial={{ opacity: 0, x: -30 }}
@@ -75,120 +84,67 @@ export default function ContactPage() {
               <form onSubmit={handleSubmit} className="space-y-5">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                   <div>
-                    <label
-                      className="block text-sm font-medium mb-2"
-                      style={{ color: "var(--text-primary)" }}
-                    >
-                      Name
-                    </label>
+                    <label className="block text-sm font-medium mb-2" style={{ color: "var(--text-primary)" }}>Name</label>
                     <input
-                      type="text"
-                      name="name"
-                      value={formData.name}
-                      onChange={handleChange}
-                      required
-                      placeholder="Your name"
-                      className={inputClasses}
-                      style={{
-                        backgroundColor: "var(--bg-secondary)",
-                        borderColor: "rgba(128,128,128,0.15)",
-                        color: "var(--text-primary)",
-                      }}
+                      type="text" name="name" value={formData.name} onChange={handleChange}
+                      required placeholder="Your name"
+                      style={inputBase}
+                      onFocus={(e) => { e.currentTarget.style.borderColor = "rgba(91,140,255,0.5)"; e.currentTarget.style.boxShadow = "0 0 0 3px rgba(91,140,255,0.08)"; }}
+                      onBlur={(e) => { e.currentTarget.style.borderColor = "rgba(91,140,255,0.15)"; e.currentTarget.style.boxShadow = "none"; }}
                     />
                   </div>
                   <div>
-                    <label
-                      className="block text-sm font-medium mb-2"
-                      style={{ color: "var(--text-primary)" }}
-                    >
-                      Email
-                    </label>
+                    <label className="block text-sm font-medium mb-2" style={{ color: "var(--text-primary)" }}>Email</label>
                     <input
-                      type="email"
-                      name="email"
-                      value={formData.email}
-                      onChange={handleChange}
-                      required
-                      placeholder="your@email.com"
-                      className={inputClasses}
-                      style={{
-                        backgroundColor: "var(--bg-secondary)",
-                        borderColor: "rgba(128,128,128,0.15)",
-                        color: "var(--text-primary)",
-                      }}
+                      type="email" name="email" value={formData.email} onChange={handleChange}
+                      required placeholder="your@email.com"
+                      style={inputBase}
+                      onFocus={(e) => { e.currentTarget.style.borderColor = "rgba(91,140,255,0.5)"; e.currentTarget.style.boxShadow = "0 0 0 3px rgba(91,140,255,0.08)"; }}
+                      onBlur={(e) => { e.currentTarget.style.borderColor = "rgba(91,140,255,0.15)"; e.currentTarget.style.boxShadow = "none"; }}
                     />
                   </div>
                 </div>
 
                 <div>
-                  <label
-                    className="block text-sm font-medium mb-2"
-                    style={{ color: "var(--text-primary)" }}
-                  >
-                    Subject
-                  </label>
+                  <label className="block text-sm font-medium mb-2" style={{ color: "var(--text-primary)" }}>Subject</label>
                   <input
-                    type="text"
-                    name="subject"
-                    value={formData.subject}
-                    onChange={handleChange}
-                    required
-                    placeholder="What's this about?"
-                    className={inputClasses}
-                    style={{
-                      backgroundColor: "var(--bg-secondary)",
-                      borderColor: "rgba(128,128,128,0.15)",
-                      color: "var(--text-primary)",
-                    }}
+                    type="text" name="subject" value={formData.subject} onChange={handleChange}
+                    required placeholder="What's this about?"
+                    style={inputBase}
+                    onFocus={(e) => { e.currentTarget.style.borderColor = "rgba(91,140,255,0.5)"; e.currentTarget.style.boxShadow = "0 0 0 3px rgba(91,140,255,0.08)"; }}
+                    onBlur={(e) => { e.currentTarget.style.borderColor = "rgba(91,140,255,0.15)"; e.currentTarget.style.boxShadow = "none"; }}
                   />
                 </div>
 
                 <div>
-                  <label
-                    className="block text-sm font-medium mb-2"
-                    style={{ color: "var(--text-primary)" }}
-                  >
-                    Message
-                  </label>
+                  <label className="block text-sm font-medium mb-2" style={{ color: "var(--text-primary)" }}>Message</label>
                   <textarea
-                    name="message"
-                    value={formData.message}
-                    onChange={handleChange}
-                    required
-                    rows={6}
-                    placeholder="Tell me about your project or idea..."
-                    className={`${inputClasses} resize-none`}
-                    style={{
-                      backgroundColor: "var(--bg-secondary)",
-                      borderColor: "rgba(128,128,128,0.15)",
-                      color: "var(--text-primary)",
-                    }}
+                    name="message" value={formData.message} onChange={handleChange}
+                    required rows={6} placeholder="Tell me about your project or idea..."
+                    style={{ ...inputBase, resize: "none" }}
+                    onFocus={(e) => { e.currentTarget.style.borderColor = "rgba(91,140,255,0.5)"; e.currentTarget.style.boxShadow = "0 0 0 3px rgba(91,140,255,0.08)"; }}
+                    onBlur={(e) => { e.currentTarget.style.borderColor = "rgba(91,140,255,0.15)"; e.currentTarget.style.boxShadow = "none"; }}
                   />
                 </div>
 
                 <motion.button
                   type="submit"
-                  className="flex items-center justify-center gap-2 w-full md:w-auto px-8 py-3.5 rounded-xl text-sm font-semibold transition-all"
+                  className="flex items-center justify-center gap-2 w-full md:w-auto px-8 py-3.5 rounded-xl text-sm font-semibold text-white"
                   style={{
-                    backgroundColor: "var(--accent)",
-                    color: "#ffffff",
+                    background: submitted
+                      ? "linear-gradient(135deg, #00b894 0%, #00cec9 100%)"
+                      : "linear-gradient(135deg, #5b8cff 0%, #7c6ee8 100%)",
+                    boxShadow: "0 8px 24px rgba(91,140,255,0.25)",
                   }}
-                  whileHover={{ scale: 1.02 }}
+                  whileHover={{ scale: 1.02, boxShadow: "0 12px 32px rgba(91,140,255,0.4)" }}
                   whileTap={{ scale: 0.98 }}
                 >
-                  {submitted ? (
-                    "Message Sent!"
-                  ) : (
-                    <>
-                      <Send size={16} />
-                      Send Message
-                    </>
-                  )}
+                  {submitted ? "Message Sent! ✓" : (<><Send size={15} /> Send Message</>)}
                 </motion.button>
               </form>
             </motion.div>
 
-            {/* Contact Info Sidebar */}
+            {/* Sidebar */}
             <motion.div
               className="lg:col-span-2 space-y-8"
               initial={{ opacity: 0, x: 30 }}
@@ -199,64 +155,43 @@ export default function ContactPage() {
                 <div key={info.label} className="flex items-start gap-4">
                   <div
                     className="flex-shrink-0 w-10 h-10 rounded-xl flex items-center justify-center"
-                    style={{ backgroundColor: "rgba(37,99,235,0.1)", color: "var(--accent)" }}
+                    style={{ background: "rgba(91,140,255,0.1)", color: "var(--accent)" }}
                   >
                     <info.icon size={18} />
                   </div>
                   <div>
-                    <p className="text-sm font-medium" style={{ color: "var(--text-secondary)" }}>
-                      {info.label}
-                    </p>
+                    <p className="text-xs font-medium mb-0.5" style={{ color: "var(--text-secondary)" }}>{info.label}</p>
                     {info.href ? (
-                      <a
-                        href={info.href}
-                        className="text-sm font-semibold hover:underline"
-                        style={{ color: "var(--text-primary)" }}
-                      >
-                        {info.value}
-                      </a>
+                      <a href={info.href} className="text-sm font-semibold hover:underline" style={{ color: "var(--text-primary)" }}>{info.value}</a>
                     ) : (
-                      <p className="text-sm font-semibold" style={{ color: "var(--text-primary)" }}>
-                        {info.value}
-                      </p>
+                      <p className="text-sm font-semibold" style={{ color: "var(--text-primary)" }}>{info.value}</p>
                     )}
                   </div>
                 </div>
               ))}
 
-              <div className="pt-6 border-t" style={{ borderColor: "rgba(128,128,128,0.15)" }}>
-                <p className="text-sm font-medium mb-4" style={{ color: "var(--text-secondary)" }}>
-                  Find me online
-                </p>
-                <div className="flex gap-4">
-                  <a
-                    href={siteConfig.socials.github}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="w-10 h-10 rounded-xl flex items-center justify-center border transition-colors hover:border-current"
-                    style={{ borderColor: "rgba(128,128,128,0.15)", color: "var(--text-secondary)" }}
-                    aria-label="GitHub"
-                  >
-                    <Github size={18} />
-                  </a>
-                  <a
-                    href={siteConfig.socials.linkedin}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="w-10 h-10 rounded-xl flex items-center justify-center border transition-colors hover:border-current"
-                    style={{ borderColor: "rgba(128,128,128,0.15)", color: "var(--text-secondary)" }}
-                    aria-label="LinkedIn"
-                  >
-                    <Linkedin size={18} />
-                  </a>
-                  <a
-                    href={`mailto:${siteConfig.socials.email}`}
-                    className="w-10 h-10 rounded-xl flex items-center justify-center border transition-colors hover:border-current"
-                    style={{ borderColor: "rgba(128,128,128,0.15)", color: "var(--text-secondary)" }}
-                    aria-label="Email"
-                  >
-                    <Mail size={18} />
-                  </a>
+              <div className="pt-6" style={{ borderTop: "1px solid rgba(91,140,255,0.1)" }}>
+                <p className="text-xs font-medium mb-4" style={{ color: "var(--text-secondary)" }}>Find me online</p>
+                <div className="flex gap-3">
+                  {[
+                    { href: siteConfig.socials.github,   icon: Github,   label: "GitHub" },
+                    { href: siteConfig.socials.linkedin,  icon: Linkedin, label: "LinkedIn" },
+                    { href: `mailto:${siteConfig.socials.email}`, icon: Mail, label: "Email" },
+                  ].map((s) => (
+                    <motion.a
+                      key={s.label}
+                      href={s.href}
+                      target={s.href.startsWith("mailto") ? undefined : "_blank"}
+                      rel="noopener noreferrer"
+                      aria-label={s.label}
+                      className="w-10 h-10 rounded-xl flex items-center justify-center border"
+                      style={{ border: "1px solid rgba(91,140,255,0.15)", color: "var(--text-secondary)" }}
+                      whileHover={{ scale: 1.1, borderColor: "rgba(91,140,255,0.5)", color: "var(--accent)" }}
+                      whileTap={{ scale: 0.95 }}
+                    >
+                      <s.icon size={17} />
+                    </motion.a>
+                  ))}
                 </div>
               </div>
             </motion.div>
