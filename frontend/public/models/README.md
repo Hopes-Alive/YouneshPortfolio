@@ -1,21 +1,10 @@
-# 3D Model Asset
+# 3D Assets In Use
 
-Place your hero model at:
-  `frontend/public/models/hero.glb`
+Current scene assets:
+- `frontend/public/models/character.enc` (seed file driving procedural hero visuals)
+- `frontend/public/models/char_enviorment.hdr` (environment lighting)
 
-## Requirements
-- Format: `.glb` (preferred) or `.gltf`
-- Target poly count: < 300k triangles
-- PBR textures (baseColor, normal, roughness, metallic)
-- Draco compressed recommended
-
-## Sources
-- [Sketchfab](https://sketchfab.com) — search "abstract crystal", "geometric humanoid", "fractured orb"
-- [Poly Haven](https://polyhaven.com) — free CC0 models/props
-- [CGTrader](https://www.cgtrader.com/free-3d-models) — many free options
-
-## Enabling the GLB model
-Once you have the file, uncomment the GLB loader code in:
-  `frontend/components/home/3d/ModelObject.tsx`
-
-Until then, the site uses the built-in procedural crystal geometry.
+## Notes
+- The character visuals are generated in `frontend/components/home/3d/ModelObject.tsx`.
+- The environment HDR is loaded in `frontend/components/home/3d/Experience.tsx`.
+- Keep file names stable unless you also update those paths.

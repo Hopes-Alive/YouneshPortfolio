@@ -5,7 +5,7 @@ import { useFrame } from "@react-three/fiber";
 import { Environment } from "@react-three/drei";
 import * as THREE from "three";
 import { scrollStore } from "./scrollStore";
-import RobotModel from "./ModelObject";
+import CharacterModel from "./ModelObject";
 import SceneParticles from "./SceneParticles";
 import PostProcessingEffects from "./PostProcessing";
 
@@ -67,12 +67,12 @@ export default function Experience({ quality }: ExperienceProps) {
 
       {/* Metallic reflections */}
       <Suspense fallback={null}>
-        <Environment preset="city" />
+        <Environment files="/models/char_enviorment.hdr" />
       </Suspense>
 
-      {/* Robot model + camera control */}
+      {/* Character model + camera control */}
       <Suspense fallback={null}>
-        <RobotModel />
+        <CharacterModel />
       </Suspense>
 
       {/* Floating particles */}

@@ -1,7 +1,6 @@
 "use client";
 
-import dynamic from "next/dynamic";
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   ArrowRight, ChevronDown, Cpu, BarChart3, Building2,
@@ -15,13 +14,8 @@ import { timelineEvents } from "@/data/timeline";
 import { visionPillars } from "@/data/vision";
 import { siteConfig } from "@/data/site";
 
-const SceneCanvas = dynamic(
-  () => import("@/components/home/3d/SceneCanvas"),
-  { ssr: false, loading: () => <div style={{ position: "fixed", inset: 0, background: "#00000a", zIndex: 0 }} /> }
-);
-
 // ── Section config ─────────────────────────────────────────────────────────────
-const SECTION_VH    = [100, 200, 220, 200, 200, 200, 180, 200, 160];
+const SECTION_VH    = [108, 140, 140, 130, 130, 130, 120, 120, 120];
 const SECTION_NAMES = ["Home", "About", "AI", "Data", "Eng", "Interior", "Dance", "Vision", "Contact"];
 const SECTION_COLORS = [
   "#6c63ff", "#e8906a", "#00ff88", "#ff6b35",
@@ -64,20 +58,34 @@ const DISCIPLINES = [
 
 // ── Cycling roles ─────────────────────────────────────────────────────────────
 const ROLES = [
-  "AI Engineer & Developer",
+  "AI Developer",
   "Data Scientist",
-  "Civil Engineer",
-  "Interior Designer",
-  "Dance Teacher",
+  "Data Engineer",
+  "Data Analyst",
+  "Machine Learning Engineer",
+  "AI Solutions Architect",
 ];
+const HERO_BUBBLE_TEXT =
+  [
+    "I design and build AI-powered systems, automation tools, and data solutions that help businesses operate smarter.",
+    "",
+    "Whether it's an intelligent chatbot, a data pipeline, or a decision dashboard, I focus on turning complex technology into clear, useful products.",
+    "",
+    "Simple mindset. Big ideas. Never giving up.",
+    "",
+    "Let's create something meaningful.",
+  ].join("\n");
 
 // ── Shared sub-components ─────────────────────────────────────────────────────
 
 function SectionLabel({ text, color }: { text: string; color: string }) {
   return (
-    <p className="text-[10px] uppercase tracking-[0.35em] font-semibold mb-5" style={{ color }}>
-      {text}
-    </p>
+    <div className="mb-5 flex items-center gap-3">
+      <p className="text-[10px] uppercase tracking-[0.35em] font-semibold" style={{ color }}>
+        {text}
+      </p>
+      <div style={{ height: 1, width: 46, background: `linear-gradient(90deg, ${color}aa, transparent)` }} />
+    </div>
   );
 }
 
@@ -92,17 +100,19 @@ function GlassCard({
       style={{
         position: "relative",
         padding: "1px",
-        borderRadius: "1.5rem",
-        background: `linear-gradient(135deg, ${accent}44, rgba(255,255,255,0.04) 50%, ${accent}18)`,
+        borderRadius: "1.35rem",
+        background: `linear-gradient(145deg, ${accent}52, rgba(255,255,255,0.05) 45%, ${accent}20)`,
+        boxShadow: `0 14px 54px rgba(0,0,0,0.46), 0 0 0 1px ${accent}14`,
       }}
     >
       <div
         className={className}
         style={{
-          background: "rgba(4, 4, 22, 0.90)",
-          backdropFilter: "blur(26px) saturate(1.5)",
-          borderRadius: "calc(1.5rem - 1px)",
-          padding: "2.5rem",
+          background: "rgba(4, 4, 22, 0.86)",
+          backdropFilter: "blur(24px) saturate(1.35)",
+          borderRadius: "calc(1.35rem - 1px)",
+          border: `1px solid ${accent}1c`,
+          padding: "clamp(1.5rem, 2.5vw, 2.5rem)",
           ...style,
         }}
       >
@@ -119,9 +129,9 @@ function MiniSkillBar({ name, level, color }: { name: string; level: number; col
         <span style={{ color: "rgba(220,220,255,0.85)" }}>{name}</span>
         <span style={{ color, fontWeight: 600 }}>{level}%</span>
       </div>
-      <div style={{ height: 3, background: "rgba(255,255,255,0.06)", borderRadius: 999, overflow: "hidden" }}>
+      <div style={{ height: 4, background: "rgba(255,255,255,0.08)", borderRadius: 999, overflow: "hidden" }}>
         <motion.div
-          style={{ height: "100%", borderRadius: 999, background: `linear-gradient(90deg, ${color}88, ${color})` }}
+          style={{ height: "100%", borderRadius: 999, background: `linear-gradient(90deg, ${color}66, ${color})`, boxShadow: `0 0 12px ${color}66` }}
           initial={{ width: 0 }}
           whileInView={{ width: `${level}%` }}
           viewport={{ once: true }}
@@ -138,13 +148,14 @@ function ProjectChip({ title, description, tags, color }: {
   return (
     <motion.div
       style={{
-        background: "rgba(4,4,22,0.8)",
-        border: `1px solid ${color}22`,
+        background: "rgba(4,4,22,0.72)",
+        border: `1px solid ${color}36`,
         borderRadius: "1rem",
         padding: "1.25rem 1.5rem",
+        backdropFilter: "blur(8px)",
       }}
-      whileHover={{ borderColor: `${color}66`, y: -2 }}
-      transition={{ duration: 0.2 }}
+      whileHover={{ borderColor: `${color}88`, y: -3, boxShadow: `0 10px 34px ${color}22` }}
+      transition={{ duration: 0.24 }}
     >
       <div className="flex items-start justify-between mb-1">
         <h4 style={{ color: "#f0f0ff", fontWeight: 700, fontSize: "0.9rem" }}>{title}</h4>
@@ -169,13 +180,13 @@ function ProjectChip({ title, description, tags, color }: {
 
 function StatRow({ stats, color = "#f0f0ff" }: { stats: { value: string; label: string }[]; color?: string }) {
   return (
-    <div className="flex flex-wrap gap-0 mt-8">
+    <div className="flex flex-wrap gap-y-4 mt-8">
       {stats.map((s, i) => (
         <div key={s.label} className="flex items-stretch">
           {i > 0 && <div style={{ width: 1, background: "rgba(255,255,255,0.08)", margin: "0 1.75rem" }} />}
           <div>
             <p className="text-3xl font-heading font-bold" style={{ color }}>{s.value}</p>
-            <p className="text-xs mt-0.5" style={{ color: "rgba(160,160,200,0.6)" }}>{s.label}</p>
+            <p className="text-xs mt-0.5" style={{ color: "rgba(190,190,220,0.62)", letterSpacing: "0.02em" }}>{s.label}</p>
           </div>
         </div>
       ))}
@@ -196,7 +207,8 @@ function BigNum({ n, color }: { n: string; color: string }) {
         fontSize: "clamp(9rem, 22vw, 20rem)",
         fontWeight: 900,
         fontFamily: "'Space Grotesk', sans-serif",
-        color: `${color}07`,
+        color: `${color}10`,
+        textShadow: `0 0 40px ${color}18`,
         lineHeight: 1,
         userSelect: "none",
         pointerEvents: "none",
@@ -250,11 +262,155 @@ function SideProgress({ active }: { active: number }) {
   );
 }
 
+function StarfieldBackground() {
+  const stars = useMemo(
+    () =>
+      Array.from({ length: 95 }, (_, i) => ({
+        id: i,
+        left: `${Math.random() * 100}%`,
+        top: `${Math.random() * 100}%`,
+        size: 1 + Math.random() * 2.2,
+        duration: 5 + Math.random() * 9,
+        delay: Math.random() * 8,
+        driftX: (Math.random() - 0.5) * 14,
+        driftY: (Math.random() - 0.5) * 18,
+        minOpacity: 0.18 + Math.random() * 0.2,
+      })),
+    []
+  );
+
+  return (
+    <div
+      aria-hidden
+      style={{
+        position: "fixed",
+        inset: 0,
+        zIndex: 6,
+        pointerEvents: "none",
+        overflow: "hidden",
+      }}
+    >
+      {stars.map((star) => (
+        <motion.span
+          key={star.id}
+          style={{
+            position: "absolute",
+            left: star.left,
+            top: star.top,
+            width: star.size,
+            height: star.size,
+            borderRadius: "50%",
+            background: "rgba(208, 236, 255, 0.95)",
+            boxShadow: "0 0 10px rgba(120,220,255,0.5)",
+            opacity: star.minOpacity,
+          }}
+          animate={{
+            opacity: [star.minOpacity, 1, star.minOpacity],
+            x: [0, star.driftX, 0],
+            y: [0, star.driftY, 0],
+          }}
+          transition={{
+            duration: star.duration,
+            delay: star.delay,
+            repeat: Infinity,
+            ease: "easeInOut",
+          }}
+        />
+      ))}
+    </div>
+  );
+}
+
+function IntroVideoSection({ onProgress }: { onProgress: (value: number) => void }) {
+  const videoRef = useRef<HTMLVideoElement | null>(null);
+  const swapTimerRef = useRef<number | null>(null);
+  const [showFinalImage, setShowFinalImage] = useState(false);
+
+  const updateProgress = () => {
+    const video = videoRef.current;
+    if (!video || !Number.isFinite(video.duration) || video.duration <= 0) return;
+    onProgress(Math.min(1, Math.max(0, video.currentTime / video.duration)));
+  };
+
+  const freezeLastFrame = () => {
+    const video = videoRef.current;
+    if (!video || !Number.isFinite(video.duration)) return;
+
+    // Jump to slightly before duration so the final frame persists reliably.
+    const finalFrameTime = Math.max(0, video.duration - 0.04);
+    video.currentTime = finalFrameTime;
+    video.pause();
+    onProgress(1);
+    if (swapTimerRef.current) window.clearTimeout(swapTimerRef.current);
+    swapTimerRef.current = window.setTimeout(() => setShowFinalImage(true), 120);
+  };
+
+  useEffect(() => {
+    return () => {
+      if (swapTimerRef.current) window.clearTimeout(swapTimerRef.current);
+    };
+  }, []);
+
+  return (
+    <div
+      id="intro-video"
+      style={{
+        position: "fixed",
+        inset: 0,
+        background: "#00000a",
+        zIndex: 5,
+        pointerEvents: "none",
+      }}
+      className="overflow-hidden"
+    >
+      <video
+        ref={videoRef}
+        src="/videos/intro.mp4"
+        autoPlay
+        muted
+        playsInline
+        preload="auto"
+        onLoadedMetadata={() => onProgress(0)}
+        onTimeUpdate={updateProgress}
+        onEnded={freezeLastFrame}
+        style={{
+          width: "100%",
+          height: "100%",
+          objectFit: "cover",
+          opacity: showFinalImage ? 0 : 1,
+          transition: "opacity 1200ms cubic-bezier(0.22, 1, 0.36, 1)",
+        }}
+      />
+      <div
+        aria-hidden
+        style={{
+          position: "absolute",
+          inset: 0,
+          backgroundImage: "url('/images/intro-final.png')",
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+          opacity: showFinalImage ? 1 : 0,
+          transition: "opacity 1400ms cubic-bezier(0.22, 1, 0.36, 1)",
+        }}
+      />
+      <div
+        aria-hidden
+        style={{
+          position: "absolute",
+          inset: 0,
+          background: "linear-gradient(to bottom, rgba(0,0,10,0.15), rgba(0,0,10,0.35))",
+        }}
+      />
+    </div>
+  );
+}
+
 // ── Hero ──────────────────────────────────────────────────────────────────────
 
 function HeroSection() {
   const [roleIdx, setRoleIdx] = useState(0);
   const [roleFade, setRoleFade] = useState(true);
+  const [typedIdx, setTypedIdx] = useState(0);
 
   useEffect(() => {
     const id = setInterval(() => {
@@ -267,13 +423,23 @@ function HeroSection() {
     return () => clearInterval(id);
   }, []);
 
+  useEffect(() => {
+    if (typedIdx >= HERO_BUBBLE_TEXT.length) return;
+
+    const id = window.setTimeout(() => {
+      setTypedIdx((v) => Math.min(HERO_BUBBLE_TEXT.length, v + 1));
+    }, 30);
+
+    return () => window.clearTimeout(id);
+  }, [typedIdx]);
+
   const letters = "YOUNESH".split("");
 
   return (
     <section
       id="hero"
       style={{ height: `${SECTION_VH[0]}vh`, position: "relative", zIndex: 10 }}
-      className="flex items-center overflow-hidden"
+      className="flex items-start overflow-visible pt-24 md:pt-28 pb-4"
     >
       {/* Subtle grid lines */}
       <div
@@ -291,17 +457,231 @@ function HeroSection() {
       {/* Glow orbs */}
       <div aria-hidden style={{ position: "absolute", top: "20%", left: "5%", width: 500, height: 500, borderRadius: "50%", background: "radial-gradient(circle, rgba(108,99,255,0.08) 0%, transparent 70%)", filter: "blur(60px)", pointerEvents: "none" }} />
       <div aria-hidden style={{ position: "absolute", bottom: "10%", left: "25%", width: 300, height: 300, borderRadius: "50%", background: "radial-gradient(circle, rgba(0,240,255,0.05) 0%, transparent 70%)", filter: "blur(50px)", pointerEvents: "none" }} />
+      <div
+        aria-hidden
+        style={{
+          position: "absolute",
+          inset: 0,
+          background:
+            "radial-gradient(900px 500px at 64% 55%, rgba(0,0,20,0.52), transparent 68%)",
+          pointerEvents: "none",
+        }}
+      />
 
       <div className="px-6 md:px-16 max-w-7xl w-full mx-auto">
-        <div className="md:max-w-[56%]">
+        <div className="grid grid-cols-1 lg:grid-cols-[38%_62%] gap-6 lg:gap-10 items-start">
+          <motion.div
+            className="lg:-mt-14 xl:-mt-20"
+            style={{
+              position: "relative",
+              width: "100%",
+              maxWidth: 900,
+              margin: "0 auto",
+            }}
+            initial={{ opacity: 0, x: -24, y: 16 }}
+            animate={{ opacity: 1, x: 0, y: 0 }}
+            transition={{ delay: 0.45, duration: 0.85, ease: [0.22, 1, 0.36, 1] }}
+          >
+            <motion.div
+              className="hidden lg:block"
+              initial={{ opacity: 0, y: -6, scale: 0.96 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              transition={{ delay: 1.1, duration: 0.45, ease: "easeOut" }}
+              style={{
+                position: "absolute",
+                top: "8%",
+                left: "-58%",
+                zIndex: 30,
+                width: "clamp(240px, 22vw, 320px)",
+                pointerEvents: "none",
+              }}
+            >
+              <div
+                style={{
+                  position: "relative",
+                  overflow: "visible",
+                  color: "#eaf3ff",
+                  borderRadius: "0.9rem",
+                  padding: "0.72rem 0.9rem 0.82rem",
+                  background:
+                    "linear-gradient(145deg, rgba(10,14,42,0.82), rgba(8,11,34,0.66) 55%, rgba(6,8,30,0.82))",
+                  border: "1px solid rgba(84,188,255,0.44)",
+                  backdropFilter: "blur(12px) saturate(1.2)",
+                  boxShadow:
+                    "0 14px 30px rgba(0,0,0,0.32), 0 0 18px rgba(84,188,255,0.18), inset 0 0 0 1px rgba(132,114,255,0.24)",
+                  fontSize: "0.84rem",
+                  lineHeight: 1.35,
+                  letterSpacing: "0.01em",
+                  fontFamily: "'Space Grotesk', system-ui, sans-serif",
+                }}
+              >
+                <div
+                  aria-hidden
+                  style={{
+                    position: "absolute",
+                    inset: 0,
+                    background:
+                      "repeating-linear-gradient(to bottom, rgba(255,255,255,0.04) 0px, rgba(255,255,255,0.04) 1px, transparent 1px, transparent 4px)",
+                    opacity: 0.2,
+                    pointerEvents: "none",
+                    borderRadius: "0.9rem",
+                  }}
+                />
+                <div className="flex items-center gap-2 mb-1.5">
+                  <span className="w-1.5 h-1.5 rounded-full" style={{ background: "#00f0ff", boxShadow: "0 0 10px #00f0ff" }} />
+                  <span style={{ fontSize: "0.56rem", letterSpacing: "0.15em", color: "rgba(152,229,255,0.88)", textTransform: "uppercase", fontWeight: 700 }}>
+                    Intro Terminal
+                  </span>
+                </div>
+                <p style={{ color: "#f3f7ff", fontWeight: 700, minHeight: "2.25rem", whiteSpace: "pre-line", lineHeight: 1.55 }}>
+                  {HERO_BUBBLE_TEXT.slice(0, typedIdx)}
+                  <span style={{ color: "#72f4ff", marginLeft: 2 }}>|</span>
+                </p>
+                <span
+                  aria-hidden
+                  style={{
+                    position: "absolute",
+                    right: "-18px",
+                    top: "31%",
+                    width: 14,
+                    height: 14,
+                    borderRadius: "50%",
+                    background: "radial-gradient(circle at 35% 25%, rgba(170,155,255,0.2), rgba(16,12,48,0.72) 58%, rgba(18,14,56,0.5))",
+                    border: "1px solid rgba(150,135,255,0.5)",
+                    boxShadow: "0 5px 12px rgba(0,0,0,0.2)",
+                  }}
+                />
+                <span
+                  aria-hidden
+                  style={{
+                    position: "absolute",
+                    right: "-28px",
+                    top: "39%",
+                    width: 9,
+                    height: 9,
+                    borderRadius: "50%",
+                    background: "radial-gradient(circle at 35% 25%, rgba(170,155,255,0.16), rgba(16,12,48,0.72) 58%, rgba(18,14,56,0.5))",
+                    border: "1px solid rgba(150,135,255,0.44)",
+                  }}
+                />
+                <span
+                  aria-hidden
+                  style={{
+                    position: "absolute",
+                    right: "-36px",
+                    top: "47%",
+                    width: 6,
+                    height: 6,
+                    borderRadius: "50%",
+                    background: "radial-gradient(circle at 35% 25%, rgba(170,155,255,0.14), rgba(16,12,48,0.72) 58%, rgba(18,14,56,0.5))",
+                    border: "1px solid rgba(150,135,255,0.4)",
+                  }}
+                />
+              </div>
+            </motion.div>
+            <div
+              aria-hidden
+              style={{
+                position: "absolute",
+                left: "48%",
+                bottom: "2%",
+                transform: "translateX(-50%)",
+                width: "92%",
+                height: "38%",
+                borderRadius: "50%",
+                background: "radial-gradient(circle, rgba(130,110,255,0.42) 0%, rgba(0,240,255,0.18) 45%, transparent 74%)",
+                filter: "blur(22px)",
+              }}
+            />
+            <img
+              src="/images/profile-cutout.png"
+              alt="Younesh portrait"
+              style={{
+                width: "100%",
+                height: "auto",
+                display: "block",
+                objectFit: "contain",
+                transform: "scaleX(-1)",
+                transformOrigin: "center",
+                filter: "drop-shadow(0 22px 40px rgba(0,0,0,0.5)) saturate(1.05)",
+              }}
+            />
 
+            {/* Discipline chips anchored to image base */}
+            <motion.div
+              className="hidden lg:inline-flex gap-2"
+              style={{
+                position: "absolute",
+                left: "2%",
+                bottom: "-58px",
+                width: "max-content",
+                maxWidth: "92vw",
+                flexWrap: "nowrap",
+                background: "linear-gradient(120deg, rgba(2,2,18,0.42) 0%, rgba(2,2,18,0.28) 55%, rgba(2,2,18,0.12) 100%)",
+                borderRadius: "1rem",
+                padding: "0.45rem 0.65rem",
+                boxShadow: "0 12px 34px rgba(0,0,0,0.28)",
+                backdropFilter: "blur(10px) saturate(1.05)",
+                zIndex: 18,
+              }}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 1.5 }}
+            >
+              {DISCIPLINES.map((d, i) => (
+                <motion.button
+                  key={d.label}
+                  onClick={() => scrollToSection(d.idx)}
+                  className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-full text-[11px] font-medium cursor-pointer"
+                  style={{
+                    background: `${d.color}1a`,
+                    border: `1px solid ${d.color}3d`,
+                    color: d.color,
+                  }}
+                  initial={{ opacity: 0, y: 12 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 1.5 + i * 0.07, duration: 0.4 }}
+                  whileHover={{ background: `${d.color}20`, borderColor: `${d.color}55`, scale: 1.06 }}
+                  whileTap={{ scale: 0.95 }}
+                >
+                  <d.Icon size={11} />
+                  {d.label}
+                </motion.button>
+              ))}
+            </motion.div>
+          </motion.div>
+
+          <div
+            className="mt-4 lg:mt-[32vh] xl:mt-[35vh] 2xl:mt-[38vh] lg:translate-x-8 xl:translate-x-12 2xl:translate-x-16"
+            style={{
+              maxWidth: 560,
+              marginLeft: "auto",
+              marginRight: "0",
+              background: "linear-gradient(140deg, rgba(4,6,28,0.76) 0%, rgba(5,7,30,0.62) 55%, rgba(8,10,36,0.38) 100%)",
+              border: "1px solid rgba(140,132,255,0.22)",
+              borderRadius: "1.2rem",
+              backdropFilter: "blur(16px) saturate(1.2)",
+              padding: "clamp(0.9rem, 1.2vw, 1.25rem)",
+              boxShadow: "0 16px 54px rgba(0,0,0,0.36), 0 0 26px rgba(108,99,255,0.12)",
+            }}
+          >
+          <div
+            aria-hidden
+            style={{
+              height: 2,
+              width: "36%",
+              borderRadius: 999,
+              marginBottom: "0.65rem",
+              background: "linear-gradient(90deg, rgba(108,99,255,0.95), rgba(0,240,255,0.95), transparent)",
+            }}
+          />
           {/* Available badge */}
           <motion.div
-            className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-medium mb-8"
+            className="inline-flex items-center gap-2 px-2.5 py-1 rounded-full text-[11px] font-medium mb-3"
             style={{
-              background: "rgba(108,99,255,0.10)",
-              border: "1px solid rgba(108,99,255,0.28)",
-              color: "#a78bfa",
+              background: "rgba(108,99,255,0.12)",
+              border: "1px solid rgba(140,125,255,0.5)",
+              color: "#d0c6ff",
             }}
             initial={{ opacity: 0, x: -24 }}
             animate={{ opacity: 1, x: 0 }}
@@ -313,10 +693,10 @@ function HeroSection() {
           </motion.div>
 
           {/* Name — letter by letter */}
-          <div style={{ perspective: "600px", marginBottom: "0.5rem" }}>
+          <div style={{ perspective: "600px", marginBottom: "0.2rem" }}>
             <motion.h1
               className="font-heading font-bold leading-none tracking-tight"
-              style={{ fontSize: "clamp(3.8rem, 11vw, 9rem)" }}
+              style={{ fontSize: "clamp(2.1rem, 5.2vw, 4rem)", whiteSpace: "nowrap", letterSpacing: "-0.02em" }}
               variants={stagger}
               initial="hidden"
               animate="show"
@@ -329,7 +709,7 @@ function HeroSection() {
                   style={{
                     display: "inline-block",
                     color: "#f0f0ff",
-                    textShadow: "0 0 60px rgba(108,99,255,0.18)",
+                    textShadow: "0 0 40px rgba(108,99,255,0.28)",
                   }}
                 >
                   {l}
@@ -340,18 +720,18 @@ function HeroSection() {
 
           {/* Accent line under name */}
           <motion.div
-            style={{ height: 2, borderRadius: 1, marginBottom: "1.25rem", overflow: "hidden" }}
+            style={{ height: 2, borderRadius: 1, marginBottom: "0.75rem", overflow: "hidden" }}
             initial={{ width: 0 }}
             animate={{ width: "min(320px, 80%)" }}
             transition={{ delay: 1.0, duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
           >
-            <div style={{ width: "100%", height: "100%", background: "linear-gradient(90deg, #6c63ff, #a78bfa, #00f0ff)" }} />
+            <div style={{ width: "100%", height: "100%", background: "linear-gradient(90deg, #6c63ff, #a78bfa, #00f0ff)", boxShadow: "0 0 18px rgba(108,99,255,0.45)" }} />
           </motion.div>
 
           {/* Cycling role */}
           <motion.div
-            className="font-heading font-semibold mb-5 h-8 flex items-center"
-            style={{ fontSize: "clamp(0.95rem, 2.2vw, 1.25rem)" }}
+            className="font-heading font-semibold mb-2 h-6 flex items-center"
+            style={{ fontSize: "clamp(0.88rem, 1.7vw, 1.05rem)" }}
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 1.1 }}
@@ -364,9 +744,12 @@ function HeroSection() {
                 exit={{ opacity: 0, y: -12 }}
                 transition={{ duration: 0.3 }}
                 style={{
+                  color: "#bdb8ff",
                   background: "linear-gradient(90deg, #6c63ff, #a78bfa, #00f0ff)",
+                  backgroundClip: "text",
                   WebkitBackgroundClip: "text",
                   WebkitTextFillColor: "transparent",
+                  textShadow: "0 0 14px rgba(108,99,255,0.24)",
                 }}
               >
                 {ROLES[roleIdx]}
@@ -376,31 +759,40 @@ function HeroSection() {
 
           {/* Description */}
           <motion.p
-            className="text-sm leading-relaxed mb-8 max-w-sm"
-            style={{ color: "rgba(160,160,200,0.75)" }}
+            className="text-[10px] uppercase tracking-[0.24em] mb-1"
+            style={{ color: "rgba(118,236,255,0.86)", fontWeight: 700 }}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 1.14 }}
+          >
+            About Me
+          </motion.p>
+          <motion.p
+            className="text-xs leading-relaxed mb-4 max-w-[31rem]"
+            style={{ color: "rgba(226,228,250,0.82)" }}
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 1.2 }}
           >
-            Building at the intersection of AI, architecture, design, and movement.
-            Every discipline feeds every other.
+            I design and ship AI-powered products, data workflows, and automation systems that
+            help teams make smarter decisions and execute faster.
           </motion.p>
 
           {/* CTAs */}
           <motion.div
-            className="flex flex-wrap gap-3 mb-10"
+            className="flex flex-wrap gap-2.5 mb-2"
             initial={{ opacity: 0, y: 18 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 1.3 }}
           >
             <motion.button
               onClick={() => scrollToSection(2)}
-              className="flex items-center gap-2 px-6 py-3 rounded-full font-semibold text-sm text-white relative overflow-hidden"
+              className="flex items-center gap-1.5 px-4 py-2.5 rounded-full font-semibold text-xs text-white relative overflow-hidden"
               style={{
                 background: "linear-gradient(135deg, #6c63ff 0%, #a78bfa 100%)",
-                boxShadow: "0 8px 32px rgba(108,99,255,0.35), inset 0 1px 0 rgba(255,255,255,0.15)",
+                boxShadow: "0 14px 38px rgba(108,99,255,0.46), inset 0 1px 0 rgba(255,255,255,0.2)",
               }}
-              whileHover={{ scale: 1.04, boxShadow: "0 12px 48px rgba(108,99,255,0.55)" }}
+              whileHover={{ scale: 1.04, boxShadow: "0 16px 56px rgba(108,99,255,0.62)" }}
               whileTap={{ scale: 0.97 }}
             >
               Explore Work
@@ -416,13 +808,13 @@ function HeroSection() {
 
             <motion.button
               onClick={() => scrollToSection(8)}
-              className="flex items-center gap-2 px-6 py-3 rounded-full font-semibold text-sm"
+              className="flex items-center gap-1.5 px-4 py-2.5 rounded-full font-semibold text-xs"
               style={{
-                border: "1px solid rgba(108,99,255,0.28)",
+                border: "1px solid rgba(150,130,255,0.4)",
                 color: "#f0f0ff",
-                background: "rgba(108,99,255,0.05)",
+                background: "rgba(108,99,255,0.12)",
               }}
-              whileHover={{ borderColor: "rgba(108,99,255,0.65)", background: "rgba(108,99,255,0.1)" }}
+              whileHover={{ borderColor: "rgba(170,150,255,0.75)", background: "rgba(108,99,255,0.2)" }}
               whileTap={{ scale: 0.97 }}
             >
               <Mail size={14} style={{ opacity: 0.75 }} />
@@ -430,34 +822,8 @@ function HeroSection() {
             </motion.button>
           </motion.div>
 
-          {/* Discipline chips */}
-          <motion.div
-            className="flex flex-wrap gap-2"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 1.5 }}
-          >
-            {DISCIPLINES.map((d, i) => (
-              <motion.button
-                key={d.label}
-                onClick={() => scrollToSection(d.idx)}
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium cursor-pointer"
-                style={{
-                  background: `${d.color}0e`,
-                  border: `1px solid ${d.color}28`,
-                  color: d.color,
-                }}
-                initial={{ opacity: 0, y: 12 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 1.5 + i * 0.07, duration: 0.4 }}
-                whileHover={{ background: `${d.color}20`, borderColor: `${d.color}55`, scale: 1.06 }}
-                whileTap={{ scale: 0.95 }}
-              >
-                <d.Icon size={11} />
-                {d.label}
-              </motion.button>
-            ))}
-          </motion.div>
+          </div>
+
         </div>
       </div>
 
@@ -591,13 +957,13 @@ function AISection() {
           <motion.div initial="hidden" whileInView="show" viewport={{ once: true }} variants={fadeUp}>
             <GlassCard accent={ACC}>
               <h3 className="font-heading font-bold text-base mb-5" style={{ color: "#f0f0ff" }}>Projects</h3>
-              <div className="space-y-4">{aiProjects.map((p) => <ProjectChip key={p.id} title={p.title} description={p.description} tags={p.tags} color={ACC} />)}</div>
+              <div className="space-y-4">{aiProjects.slice(0, 2).map((p) => <ProjectChip key={p.id} title={p.title} description={p.description} tags={p.tags} color={ACC} />)}</div>
             </GlassCard>
           </motion.div>
           <motion.div initial="hidden" whileInView="show" viewport={{ once: true }} variants={fadeUp} transition={{ delay: 0.15 }}>
             <GlassCard accent={ACC}>
               <h3 className="font-heading font-bold text-base mb-5" style={{ color: "#f0f0ff" }}>Core Skills</h3>
-              {aiSkills.slice(0, 6).map((s) => <MiniSkillBar key={s.name} name={s.name} level={s.level} color={ACC} />)}
+              {aiSkills.slice(0, 4).map((s) => <MiniSkillBar key={s.name} name={s.name} level={s.level} color={ACC} />)}
             </GlassCard>
           </motion.div>
         </div>
@@ -638,13 +1004,13 @@ function DataSection() {
           <motion.div initial="hidden" whileInView="show" viewport={{ once: true }} variants={fadeUp}>
             <GlassCard accent={ACC}>
               <h3 className="font-heading font-bold text-base mb-5" style={{ color: "#f0f0ff" }}>Projects</h3>
-              <div className="space-y-4">{dsProjects.map((p) => <ProjectChip key={p.id} title={p.title} description={p.description} tags={p.tags} color={ACC} />)}</div>
+              <div className="space-y-4">{dsProjects.slice(0, 2).map((p) => <ProjectChip key={p.id} title={p.title} description={p.description} tags={p.tags} color={ACC} />)}</div>
             </GlassCard>
           </motion.div>
           <motion.div initial="hidden" whileInView="show" viewport={{ once: true }} variants={fadeUp} transition={{ delay: 0.15 }}>
             <GlassCard accent={ACC}>
               <h3 className="font-heading font-bold text-base mb-5" style={{ color: "#f0f0ff" }}>Core Skills</h3>
-              {dsSkills.slice(0, 6).map((s) => <MiniSkillBar key={s.name} name={s.name} level={s.level} color={ACC} />)}
+              {dsSkills.slice(0, 4).map((s) => <MiniSkillBar key={s.name} name={s.name} level={s.level} color={ACC} />)}
             </GlassCard>
           </motion.div>
         </div>
@@ -687,13 +1053,13 @@ function EngineeringSection() {
           <motion.div initial="hidden" whileInView="show" viewport={{ once: true }} variants={fadeUp}>
             <GlassCard accent={ACC}>
               <h3 className="font-heading font-bold text-base mb-5" style={{ color: "#f0f0ff" }}>Projects</h3>
-              <div className="space-y-4">{engProjects.map((p) => <ProjectChip key={p.id} title={p.title} description={p.description} tags={p.tags} color={ACC} />)}</div>
+              <div className="space-y-4">{engProjects.slice(0, 2).map((p) => <ProjectChip key={p.id} title={p.title} description={p.description} tags={p.tags} color={ACC} />)}</div>
             </GlassCard>
           </motion.div>
           <motion.div initial="hidden" whileInView="show" viewport={{ once: true }} variants={fadeUp} transition={{ delay: 0.15 }}>
             <GlassCard accent={ACC}>
               <h3 className="font-heading font-bold text-base mb-5" style={{ color: "#f0f0ff" }}>Tools & Skills</h3>
-              {engSkills.map((s) => <MiniSkillBar key={s.name} name={s.name} level={s.level} color={ACC} />)}
+              {engSkills.slice(0, 4).map((s) => <MiniSkillBar key={s.name} name={s.name} level={s.level} color={ACC} />)}
             </GlassCard>
           </motion.div>
         </div>
@@ -737,13 +1103,13 @@ function InteriorSection() {
           <motion.div initial="hidden" whileInView="show" viewport={{ once: true }} variants={fadeUp}>
             <GlassCard accent={ACC}>
               <h3 className="font-heading font-bold text-base mb-5" style={{ color: "#f0f0ff" }}>Projects</h3>
-              <div className="space-y-4">{intProjects.map((p) => <ProjectChip key={p.id} title={p.title} description={p.description} tags={p.tags} color={ACC} />)}</div>
+              <div className="space-y-4">{intProjects.slice(0, 2).map((p) => <ProjectChip key={p.id} title={p.title} description={p.description} tags={p.tags} color={ACC} />)}</div>
             </GlassCard>
           </motion.div>
           <motion.div initial="hidden" whileInView="show" viewport={{ once: true }} variants={fadeUp} transition={{ delay: 0.15 }}>
             <GlassCard accent={ACC}>
               <h3 className="font-heading font-bold text-base mb-5" style={{ color: "#f0f0ff" }}>Skills</h3>
-              {intSkills.map((s) => <MiniSkillBar key={s.name} name={s.name} level={s.level} color={ACC} />)}
+              {intSkills.slice(0, 4).map((s) => <MiniSkillBar key={s.name} name={s.name} level={s.level} color={ACC} />)}
             </GlassCard>
           </motion.div>
         </div>
@@ -792,7 +1158,7 @@ function DanceSection() {
         <motion.div initial="hidden" whileInView="show" viewport={{ once: true }} variants={fadeUp}>
           <GlassCard accent={ACC}>
             <h3 className="font-heading font-bold text-base mb-5" style={{ color: "#f0f0ff" }}>Skills</h3>
-            {danceSkills.map((s) => <MiniSkillBar key={s.name} name={s.name} level={s.level} color={ACC} />)}
+            {danceSkills.slice(0, 4).map((s) => <MiniSkillBar key={s.name} name={s.name} level={s.level} color={ACC} />)}
           </GlassCard>
         </motion.div>
       </div>
@@ -933,6 +1299,10 @@ function ContactSection() {
 
 export default function HomePage() {
   const [activeSection, setActiveSection] = useState(0);
+  const [introProgress, setIntroProgress] = useState(0);
+  const REVEAL_START = 0.7;
+  const revealLinear = Math.min(1, Math.max(0, (introProgress - REVEAL_START) / (1 - REVEAL_START)));
+  const revealProgress = revealLinear * revealLinear * (3 - 2 * revealLinear);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -962,19 +1332,51 @@ export default function HomePage() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
+  useEffect(() => {
+    (window as any).__introProgress = introProgress;
+    window.dispatchEvent(new CustomEvent("portfolio-intro-progress", { detail: introProgress }));
+  }, [introProgress]);
+
   return (
-    <div style={{ background: "#00000a", minHeight: "100vh" }}>
-      <SceneCanvas />
-      <SideProgress active={activeSection} />
-      <HeroSection />
-      <AboutSection />
-      <AISection />
-      <DataSection />
-      <EngineeringSection />
-      <InteriorSection />
-      <DanceSection />
-      <VisionSection />
-      <ContactSection />
+    <div style={{ background: "#00000a", minHeight: "100vh", position: "relative" }}>
+      <IntroVideoSection onProgress={setIntroProgress} />
+      <StarfieldBackground />
+      <div
+        style={{
+          position: "relative",
+          zIndex: 20,
+          opacity: revealProgress,
+          transform: `translateY(${(1 - revealProgress) * 36}px)`,
+          filter: `blur(${(1 - revealProgress) * 6}px)`,
+          transition:
+            "opacity 900ms cubic-bezier(0.22, 1, 0.36, 1), transform 900ms cubic-bezier(0.22, 1, 0.36, 1), filter 900ms cubic-bezier(0.22, 1, 0.36, 1)",
+          pointerEvents: revealProgress > 0.75 ? "auto" : "none",
+        }}
+      >
+        <div
+          aria-hidden
+          style={{
+            position: "fixed",
+            inset: 0,
+            zIndex: 0,
+            pointerEvents: "none",
+            background:
+              "radial-gradient(1200px 520px at 16% 10%, rgba(130,120,255,0.12), transparent 70%), radial-gradient(900px 460px at 84% 80%, rgba(0,240,255,0.08), transparent 68%)",
+          }}
+        />
+        <div style={{ position: "relative", zIndex: 1 }}>
+          <SideProgress active={activeSection} />
+          <HeroSection />
+          <AboutSection />
+          <AISection />
+          <DataSection />
+          <EngineeringSection />
+          <InteriorSection />
+          <DanceSection />
+          <VisionSection />
+          <ContactSection />
+        </div>
+      </div>
     </div>
   );
 }

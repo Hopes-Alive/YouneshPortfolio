@@ -89,6 +89,7 @@ export default function Navbar() {
   const [scrolled, setScrolled]           = useState(false);
   const [scrollPct, setScrollPct]         = useState(0);
   const [sectionIdx, setSectionIdx]       = useState(0);
+  const [introReveal, setIntroReveal]     = useState(1);
   const pathname                          = usePathname();
   const workTimeoutRef                    = useRef<NodeJS.Timeout | null>(null);
   const isHome                            = pathname === "/";
@@ -118,6 +119,32 @@ export default function Navbar() {
     return () => { document.body.style.overflow = ""; };
   }, [isOpen]);
 
+  useEffect(() => {
+    if (!isHome) {
+      setIntroReveal(1);
+      return;
+    }
+
+    const updateReveal = (rawValue: number) => {
+      const clamped = Math.min(1, Math.max(0, rawValue));
+      const MENU_REVEAL_START = 0.92;
+      const linear = Math.min(1, Math.max(0, (clamped - MENU_REVEAL_START) / (1 - MENU_REVEAL_START)));
+      const smooth = linear * linear * (3 - 2 * linear);
+      setIntroReveal(smooth);
+    };
+
+    const existing = (window as any).__introProgress;
+    if (typeof existing === "number") updateReveal(existing);
+
+    const onIntroProgress = (event: Event) => {
+      const customEvent = event as CustomEvent<number>;
+      if (typeof customEvent.detail === "number") updateReveal(customEvent.detail);
+    };
+
+    window.addEventListener("portfolio-intro-progress", onIntroProgress as EventListener);
+    return () => window.removeEventListener("portfolio-intro-progress", onIntroProgress as EventListener);
+  }, [isHome]);
+
   const handleWorkEnter = () => {
     if (workTimeoutRef.current) clearTimeout(workTimeoutRef.current);
     setWorkOpen(true);
@@ -137,8 +164,9 @@ export default function Navbar() {
           scrolled ? "pt-2" : "pt-5"
         )}
         initial={{ y: -100, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-        transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
+        animate={{ y: -100 + introReveal * 100, opacity: introReveal }}
+        transition={{ duration: 0.9, ease: [0.22, 1, 0.36, 1] }}
+        style={{ pointerEvents: introReveal > 0.98 ? "auto" : "none" }}
       >
         <div
           className={cn(

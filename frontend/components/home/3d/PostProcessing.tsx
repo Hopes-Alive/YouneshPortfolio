@@ -1,39 +1,22 @@
 "use client";
 
-import {
-  EffectComposer,
-  Bloom,
-  Vignette,
-  ChromaticAberration,
-} from "@react-three/postprocessing";
-import { BlendFunction } from "postprocessing";
-import * as THREE from "three";
-interface PostProcessingProps {
+import { Bloom, EffectComposer, Noise, Vignette } from "@react-three/postprocessing";
+
+interface PostProcessingEffectsProps {
   quality: 0 | 1 | 2;
 }
 
-export default function PostProcessingEffects({ quality }: PostProcessingProps) {
+export default function PostProcessingEffects({ quality }: PostProcessingEffectsProps) {
+  if (quality <= 0) return null;
 
-  if (quality === 0) return null;
-
-  if (quality === 2) {
-    return (
-      <EffectComposer multisampling={4}>
-        <Bloom intensity={1.4} luminanceThreshold={0.15} luminanceSmoothing={0.9} mipmapBlur />
-        <Vignette eskil={false} offset={0.3} darkness={0.9} blendFunction={BlendFunction.NORMAL} />
-        <ChromaticAberration
-          offset={new THREE.Vector2(0.0005, 0.0005)}
-          radialModulation={false}
-          modulationOffset={0}
-        />
-      </EffectComposer>
-    );
-  }
+  const bloomIntensity = quality === 2 ? 0.75 : 0.45;
+  const noiseOpacity = quality === 2 ? 0.03 : 0.015;
 
   return (
-    <EffectComposer multisampling={0}>
-      <Bloom intensity={1.2} luminanceThreshold={0.18} luminanceSmoothing={0.9} mipmapBlur />
-      <Vignette eskil={false} offset={0.3} darkness={0.9} blendFunction={BlendFunction.NORMAL} />
+    <EffectComposer multisampling={quality === 2 ? 4 : 0}>
+      <Bloom mipmapBlur intensity={bloomIntensity} luminanceThreshold={0.2} luminanceSmoothing={0.4} />
+      <Vignette eskil={false} offset={0.2} darkness={0.65} />
+      <Noise opacity={noiseOpacity} />
     </EffectComposer>
   );
 }
